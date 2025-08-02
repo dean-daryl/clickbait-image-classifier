@@ -4,7 +4,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.optimizers import Adam
-from preprocessing import get_data_generators, IMAGE_SIZE, BATCH_SIZE
+from .preprocessing import get_data_generators, IMAGE_SIZE, BATCH_SIZE
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../models/clickbait_cnn.h5")
 TRAIN_DIR = os.path.join(os.path.dirname(__file__), "../data/train")

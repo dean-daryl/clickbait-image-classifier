@@ -5,7 +5,7 @@ import uvicorn
 import numpy as np
 import os
 from tensorflow.keras.models import load_model
-from preprocessing import preprocess_single_image, IMAGE_SIZE
+from .preprocessing import preprocess_single_image, IMAGE_SIZE
 from typing import List
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../models/clickbait_cnn.h5")
