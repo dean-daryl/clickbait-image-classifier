@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clickbait-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/clickbait-image-classifier/data
+      - ./models:/app/clickbait-image-classifier/models
+      - ./src:/app/clickbait-image-classifier/src
+    environment:
+      - PYTHONPATH=/app/clickbait-image-classifier
+      - MODEL_PATH=/app/clickbait-image-classifier/models/clickbait_cnn.h5
+    command: uvicorn src.prediction:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+
+  # Streamlit Dashboard Service
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clickbait-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./app.py:/app/clickbait-image-classifier/app.py
+      - ./data:/app/clickbait-image-classifier/data
+    environment:
+      - PYTHONPATH=/app/clickbait-image-classifier
+      - API_BASE_URL=http://api:8000
+    command: streamlit run app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true --server.enableCORS false --server.enableXsrfProtection false
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+
+  # Redis for caching predictions and session management
+  redis:
+    image: redis:7-alpine
+    container_name: clickbait-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: clickbait-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - dashboard
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: clickbait-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: clickbait-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - clickbait-network
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  clickbait-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
