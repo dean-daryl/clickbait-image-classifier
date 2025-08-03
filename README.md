@@ -8,9 +8,9 @@ A comprehensive machine learning pipeline for classifying clickbait images using
 
 
 ## 🌐 Live Application URLs
-- **FastAPI Documentation:** [https://your-api-url.com/docs](https://clickbait-image-classifier-staging.up.railway.app//docs)
-- **Live API Endpoint:** [https://your-api-url.com](https://clickbait-image-classifier-staging.up.railway.app/)
-- **Streamlit Dashboard:** https://huggingface.co/spaces/dean-daryl/clickbait-classifier)
+- **FastAPI Documentation:** https://clickbait-image-classifier-staging.up.railway.app//docs
+- **Live API Endpoint:** https://clickbait-image-classifier-staging.up.railway.app/
+- **Streamlit Dashboard:** https://huggingface.co/spaces/dean-daryl/clickbait-classifier
 - 
 ## 📋 Project Description
 
