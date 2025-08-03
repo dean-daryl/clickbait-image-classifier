@@ -3,7 +3,7 @@
 A comprehensive machine learning pipeline for classifying clickbait images using deep learning, featuring model deployment, monitoring, retraining capabilities, and cloud scalability.
 
 ## 📺 Video Demo
-**Vide Demo Link:** [Clickbait Image Classifier Demo]([https://youtube.com/watch?v=demo-video-link](https://www.loom.com/share/bba2e806502545d18bb75b392aea608c?sid=bcdab2b5-4fcb-458b-b09b-7e1d3de32d7f))
+**Vide Demo Link:** [Clickbait Image Classifier Demo](https://www.loom.com/share/bba2e806502545d18bb75b392aea608c?sid=bcdab2b5-4fcb-458b-b09b-7e1d3de32d7f)
 > *Complete walkthrough of the application, API endpoints, dashboard features, and deployment process*
 
 ## 📋 Project Description
