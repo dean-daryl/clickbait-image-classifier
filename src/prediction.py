@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import numpy as np
@@ -75,6 +75,45 @@ async def options_handler(path: str):
 @app.get("/")
 def root():
     return {"message": "Clickbait Image Classifier API is running."}
+
+@app.get("/docs-info")
+def docs_info():
+    """
+    Get information about available API endpoints and documentation.
+    """
+    return {
+        "title": "Clickbait Image Classifier API Documentation",
+        "description": "This API provides endpoints for classifying images as clickbait or real content using a trained CNN model.",
+        "version": "1.0.0",
+        "interactive_docs": "/docs",
+        "redoc_docs": "/redoc",
+        "openapi_schema": "/openapi.json",
+        "endpoints": {
+            "/": "Root endpoint - API status",
+            "/predict": "POST - Predict single image",
+            "/predict-batch": "POST - Predict multiple images",
+            "/retrain": "POST - Retrain the model",
+            "/status": "GET - Model status",
+            "/system-check": "GET - System health check",
+            "/debug": "GET - Debug information",
+            "/model-info": "GET - Model performance metrics",
+            "/docs": "GET - Interactive API documentation (Swagger UI)",
+            "/redoc": "GET - Alternative API documentation (ReDoc)",
+            "/docs-info": "GET - This endpoint with documentation info"
+        },
+        "usage_examples": {
+            "predict_single": "curl -X POST 'http://localhost:8000/predict' -F 'file=@image.jpg'",
+            "check_status": "curl -X GET 'http://localhost:8000/status'",
+            "retrain_model": "curl -X POST 'http://localhost:8000/retrain'"
+        }
+    }
+
+@app.get("/api-docs")
+def api_docs_redirect():
+    """
+    Redirect to the interactive API documentation.
+    """
+    return RedirectResponse(url="/docs")
 
 @app.post("/predict")
 async def predict_image(file: UploadFile = File(...)):
