@@ -6,6 +6,12 @@ A comprehensive machine learning pipeline for classifying clickbait images using
 **Vide Demo Link:** [Clickbait Image Classifier Demo](https://www.loom.com/share/bba2e806502545d18bb75b392aea608c?sid=bcdab2b5-4fcb-458b-b09b-7e1d3de32d7f)
 > *Complete walkthrough of the application, API endpoints, dashboard features, and deployment process*
 
+
+## 🌐 Live Application URLs
+- **FastAPI Documentation:** [https://your-api-url.com/docs](https://clickbait-image-classifier-staging.up.railway.app//docs)
+- **Live API Endpoint:** [https://your-api-url.com](https://clickbait-image-classifier-staging.up.railway.app/)
+- **Streamlit Dashboard:** https://huggingface.co/spaces/dean-daryl/clickbait-classifier)
+- 
 ## 📋 Project Description
 
 This project implements an end-to-end machine learning pipeline for detecting clickbait images using Convolutional Neural Networks (CNNs). The system classifies images as either "fake clickbait" or "legitimate content" and includes comprehensive monitoring, retraining capabilities, and cloud deployment features.
