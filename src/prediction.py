@@ -137,11 +137,45 @@ def retrain_model():
     Trigger retraining of the model using current data.
     """
     try:
-        from model import train_model
+        logger.info("Starting model retraining process...")
+
+        # Check if training data exists
+        from .model import TRAIN_DIR, TEST_DIR
+        if not os.path.exists(TRAIN_DIR):
+            raise HTTPException(status_code=400, detail=f"Training directory not found: {TRAIN_DIR}")
+        if not os.path.exists(TEST_DIR):
+            raise HTTPException(status_code=400, detail=f"Test directory not found: {TEST_DIR}")
+
+        # Import and run training
+        from .model import train_model
+        logger.info("Loading training data and starting model training...")
         model, history = train_model()
-        return {"message": "Retraining complete. Model updated."}
+
+        # Get training metrics from history
+        final_accuracy = float(history.history['accuracy'][-1]) if 'accuracy' in history.history else 0.0
+        final_val_accuracy = float(history.history['val_accuracy'][-1]) if 'val_accuracy' in history.history else 0.0
+        epochs_completed = len(history.history['loss']) if 'loss' in history.history else 0
+
+        logger.info(f"Retraining complete. Final accuracy: {final_accuracy:.4f}, Val accuracy: {final_val_accuracy:.4f}")
+
+        return {
+            "message": "Retraining complete. Model updated successfully.",
+            "training_metrics": {
+                "final_accuracy": f"{final_accuracy:.2%}",
+                "final_val_accuracy": f"{final_val_accuracy:.2%}",
+                "epochs_completed": epochs_completed,
+                "status": "success"
+            }
+        }
+    except ImportError as e:
+        logger.error(f"Import error during retraining: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Module import error: {str(e)}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found error during retraining: {str(e)}")
+        raise HTTPException(status_code=404, detail=f"Required file not found: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Unexpected error during retraining: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Retraining failed: {str(e)}")
 
 @app.get("/status")
 def model_status():
@@ -153,6 +187,61 @@ def model_status():
         return {"status": "Model loaded and ready."}
     except Exception as e:
         return {"status": "Model not available.", "error": str(e)}
+
+@app.get("/system-check")
+def system_check():
+    """
+    Check if all required directories and files exist for training.
+    """
+    try:
+        from .model import TRAIN_DIR, TEST_DIR, MODEL_PATH
+
+        checks = {
+            "model_file": {
+                "path": MODEL_PATH,
+                "exists": os.path.exists(MODEL_PATH),
+                "type": "file"
+            },
+            "train_directory": {
+                "path": TRAIN_DIR,
+                "exists": os.path.exists(TRAIN_DIR),
+                "type": "directory"
+            },
+            "test_directory": {
+                "path": TEST_DIR,
+                "exists": os.path.exists(TEST_DIR),
+                "type": "directory"
+            }
+        }
+
+        # Check for subdirectories in train/test
+        if os.path.exists(TRAIN_DIR):
+            train_subdirs = [d for d in os.listdir(TRAIN_DIR) if os.path.isdir(os.path.join(TRAIN_DIR, d))]
+            checks["train_subdirectories"] = {
+                "found": train_subdirs,
+                "expected": ["clickbait_fake", "clickbait_real"]
+            }
+
+        if os.path.exists(TEST_DIR):
+            test_subdirs = [d for d in os.listdir(TEST_DIR) if os.path.isdir(os.path.join(TEST_DIR, d))]
+            checks["test_subdirectories"] = {
+                "found": test_subdirs,
+                "expected": ["clickbait_fake", "clickbait_real"]
+            }
+
+        all_good = all(check.get("exists", True) for check in checks.values() if "exists" in check)
+
+        return {
+            "status": "All systems ready" if all_good else "Some issues found",
+            "checks": checks,
+            "ready_for_training": all_good
+        }
+    except Exception as e:
+        return {
+            "status": "System check failed",
+            "error": str(e),
+            "ready_for_training": False
+        }
 
 @app.get("/debug")
 async def debug_info(request: Request):

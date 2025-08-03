@@ -31,11 +31,11 @@ def get_data_generators(
     # Data augmentation for training
     train_datagen = ImageDataGenerator(
         rescale=1./255,
-        rotation_range=15,
-        width_shift_range=0.1,
-        height_shift_range=0.1,
-        shear_range=0.1,
-        zoom_range=0.1,
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.15,
+        zoom_range=0.2,
         horizontal_flip=True,
         fill_mode='nearest'
     )
@@ -61,6 +61,7 @@ def get_data_generators(
         seed=seed
     )
 
+    print('Class indices:', train_generator.class_indices)
     return train_generator, test_generator
 
 def preprocess_single_image(image_path: str, image_size: Tuple[int, int] = IMAGE_SIZE) -> np.ndarray:
