@@ -1,0 +1,40 @@
+[server]
+# Disable CORS protection to allow all origins
+enableCORS = false
+
+# Enable cross-origin requests
+enableXsrfProtection = false
+
+# Allow websocket compression
+enableWebsocketCompression = true
+
+# Set server address and port
+address = "0.0.0.0"
+port = 8501
+
+# Disable headless mode for better compatibility
+headless = false
+
+[browser]
+# Don't automatically open browser
+gatherUsageStats = false
+serverAddress = "0.0.0.0"
+serverPort = 8501
+
+[client]
+# Allow connections from any origin
+caching = true
+displayEnabled = true
+showErrorDetails = true
+
+[global]
+# Disable analytics and telemetry
+disableWatchdogWarning = true
+showWarningOnDirectExecution = false
+
+[theme]
+# Optional: Set a consistent theme
+primaryColor = "#FF6B6B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"

@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # API Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://clickbait-image-classifier-staging.up.railway.app"
 
 # Initialize session state
 if 'model_status' not in st.session_state:
